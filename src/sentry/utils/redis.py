@@ -59,6 +59,38 @@ def make_rb_cluster(hosts=None, options=None):
     return rb.Cluster(**kwargs)
 
 
+class ClusterManager(object):
+    def __init__(self):
+        self.__clusters = {}
+
+    def get(self, key):
+        # XXX: Circular import, fix me.
+        from sentry import options
+
+        cluster = self.__clusters.get(key)
+
+        if cluster is None:
+            # Try and get the configuration for the named cluster first.
+            configurations = options.get('redis.clusters')
+            configuration = configurations.get(key)
+
+            # If there is no configuration for that cluster, use the default.
+            # TODO: Probably just initialize the default cluster once?
+            # TODO: It might be helpful to log this case for debugging?
+            if configuration is None:
+                configuration = configurations['default']
+
+            cluster = self.__clusters[key] = rb.Cluster(
+                pool_cls=_shared_pool,
+                **configuration
+            )
+
+        return cluster
+
+
+clusters = ClusterManager()
+
+
 def check_cluster_versions(cluster, required, recommended=Version((3, 0, 4)), label=None):
     try:
         with cluster.all() as client:
