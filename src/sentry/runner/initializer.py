@@ -229,6 +229,19 @@ def apply_legacy_settings(settings):
                       "Use SENTRY_OPTIONS instead, key 'system.rate-limit'", DeprecationWarning)
         settings.SENTRY_OPTIONS['system.rate-limit'] = settings.SENTRY_SYSTEM_MAX_EVENTS_PER_MINUTE
 
+    if 'redis.clusters' in settings.SENTRY_OPTIONS:
+        if hasattr(settings, 'SENTRY_REDIS_OPTIONS'):
+            raise Exception("Cannot specify both SENTRY_OPTIONS['redis.clusters'] option and SENTRY_REDIS_OPTIONS setting.")
+        # TODO: This probably needs to validate that this configuration is valid somewhere?
+        settings.SENTRY_REDIS_OPTIONS = settings.SENTRY_OPTIONS['redis.clusters']['default']
+    else:
+        import warnings
+        warnings.warn('SENTRY_REDIS_OPTIONS is deprecated.'
+                      "Use SENTRY_OPTIONS instead, key 'redis.clusters'", DeprecationWarning)
+        settings.SENTRY_OPTIONS['redis.clusters'] = {
+            'default': settings.SENTRY_REDIS_OPTIONS,
+        }
+
     if not hasattr(settings, 'SENTRY_URL_PREFIX'):
         from sentry import options
         url_prefix = options.get('system.url-prefix', silent=True)
