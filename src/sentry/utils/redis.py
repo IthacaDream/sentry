@@ -1,6 +1,8 @@
 from __future__ import absolute_import
 
+import functools
 import posixpath
+import warnings
 from pkg_resources import resource_string
 from threading import Lock
 
@@ -43,20 +45,15 @@ def _shared_pool(**opts):
         return pool
 
 
-def make_rb_cluster(hosts=None, options=None):
-    """Returns a rb cluster that internally shares the pools more
-    intelligently.
-    """
-    options = dict(options or ())
-    if hosts is not None:
-        options['hosts'] = hosts
-    kwargs = {}
-    for key in 'hosts', 'host_defaults', 'pool_options', 'router_options':
-        val = options.get(key)
-        if val is not None:
-            kwargs[key] = val
-    kwargs['pool_cls'] = _shared_pool
-    return rb.Cluster(**kwargs)
+_make_rb_cluster = functools.partial(rb.Cluster, pool_cls=_shared_pool)
+
+
+def make_rb_cluster(*args, **kwargs):
+    warnings.warn(
+        'Direct Redis cluster construction is deprecated, please use named clusters.',
+        DeprecationWarning,
+    )
+    return _make_rb_cluster(*args, **kwargs)
 
 
 class ClusterManager(object):
@@ -89,6 +86,38 @@ class ClusterManager(object):
 
 
 clusters = ClusterManager()
+
+
+def get_cluster_from_options(backend, options, cluster_manager=clusters, cluster_option_name='cluster', default_cluster_name='default'):
+    cluster_constructor_option_names = frozenset(('hosts', 'host_defaults', 'pool_options', 'router_options'))
+
+    options = options.copy()
+    cluster_options = {key: options.pop(key) for key in set(options.keys()).intersection(cluster_constructor_option_names)}
+    if cluster_options:
+        if cluster_option_name in options:
+            raise InvalidConfiguration(
+                'Cannot provide both named cluster ({!r}) and cluster configuration ({!r}) options.'.format(
+                    cluster_option_name,
+                    cluster_constructor_option_names,
+                )
+            )
+        else:
+            warnings.warn(
+                'Providing Redis cluster configuration options ({!r}) to {!r} is '
+                'deprecated, please update your configuration to use named Redis '
+                'clusters ({!r}).'.format(
+                    cluster_constructor_option_names,
+                    backend,
+                    cluster_option_name,
+                ),
+                DeprecationWarning,
+                stacklevel=2
+            )
+        cluster = rb.Cluster(pool_cls=_shared_pool, **cluster_options)
+    else:
+        cluster = cluster_manager.get(options.pop(cluster_option_name, default_cluster_name))
+
+    return cluster, options
 
 
 def check_cluster_versions(cluster, required, recommended=Version((3, 0, 4)), label=None):
