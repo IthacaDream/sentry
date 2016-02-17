@@ -19,7 +19,6 @@ register('system.databases', type=Dict, flags=FLAG_NOSTORE)
 register('system.debug', default=False, flags=FLAG_NOSTORE)
 register('system.rate-limit', default=0, flags=FLAG_PRIORITIZE_DISK)
 register('system.secret-key', flags=FLAG_NOSTORE)
-register('redis.options', type=Dict, flags=FLAG_NOSTORE)
 
 # Absolute URL to the sentry root directory. Should not include a trailing slash.
 register('system.url-prefix', ttl=60, grace=3600, flags=FLAG_REQUIRED | FLAG_PRIORITIZE_DISK)

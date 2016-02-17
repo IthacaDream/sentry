@@ -67,7 +67,6 @@ options_mapper = {
     'system.databases': 'DATABASES',
     'system.debug': 'DEBUG',
     'system.secret-key': 'SECRET_KEY',
-    'redis.options': 'SENTRY_REDIS_OPTIONS',
 }
 
 
