@@ -119,6 +119,11 @@ def initialize_app(config, skip_backend_validation=False):
 
     apply_legacy_settings(settings)
 
+    from sentry.cache import default_cache
+    from sentry.options import default_store
+
+    default_store.cache = default_cache
+
     install_plugin_apps(settings)
 
     # Commonly setups don't correctly configure themselves for production envs
