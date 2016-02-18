@@ -90,17 +90,17 @@ def get_cluster_from_options(backend, options, cluster_manager=clusters, cluster
     if cluster_options:
         if cluster_option_name in options:
             raise InvalidConfiguration(
-                'Cannot provide both named cluster ({!r}) and cluster configuration ({!r}) options.'.format(
+                'Cannot provide both named cluster ({!r}) and cluster configuration ({}) options.'.format(
                     cluster_option_name,
-                    cluster_constructor_option_names,
+                    ', '.join(map(repr, cluster_constructor_option_names)),
                 )
             )
         else:
             warnings.warn(
-                'Providing Redis cluster configuration options ({!r}) to {!r} is '
+                'Providing Redis cluster configuration options ({}) to {!r} is '
                 'deprecated, please update your configuration to use named Redis '
                 'clusters ({!r}).'.format(
-                    cluster_constructor_option_names,
+                    ', '.join(map(repr, cluster_constructor_option_names)),
                     backend,
                     cluster_option_name,
                 ),
