@@ -119,6 +119,13 @@ def initialize_app(config, skip_backend_validation=False):
 
     apply_legacy_settings(settings)
 
+    # The default ``OptionsStore`` instance is initialized without the cache
+    # backend attached. The store itself utilizes the cache during normal
+    # operation, but can't use the cache before the options (which typically
+    # includes the cache configuration) have been bootstrapped from the legacy
+    # settings and/or configuration values. Those options should have been
+    # loaded at this point, so we can plug in the cache backend before
+    # continuing to initialize the remainider of the application.
     from sentry.cache import default_cache
     from sentry.options import default_store
 

@@ -62,7 +62,7 @@ class ClusterManager(object):
         self.__clusters = {}
 
     def get(self, key):
-
+        # TODO: This might need a lock?
         cluster = self.__clusters.get(key)
 
         if cluster is None:
@@ -72,7 +72,9 @@ class ClusterManager(object):
 
             # If there is no configuration for that cluster, use the default.
             # TODO: Probably just initialize the default cluster once?
-            # TODO: It might be helpful to log this case for debugging?
+            # TODO: It might be helpful to log this case for debugging? Also,
+            # should we even allow falling back to an implicit default cluster?
+            # This seems like a good way to hide broken configurations.
             if configuration is None:
                 configuration = configurations['default']
 
