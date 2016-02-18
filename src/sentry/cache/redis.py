@@ -17,11 +17,11 @@ from .base import BaseCache
 class RedisCache(BaseCache):
     key_expire = 60 * 60  # 1 hour
 
-    def __init__(self, version=None, prefix=None, **options):
+    def __init__(self, **options):
         self.cluster, options = get_cluster_from_options(self, options)
         self.client = self.cluster.get_routing_client()
 
-        super(RedisCache, self).__init__(version=version, prefix=prefix)
+        super(RedisCache, self).__init__(**options)
 
     def set(self, key, value, timeout, version=None):
         key = self.make_key(key, version=version)
