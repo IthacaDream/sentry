@@ -77,10 +77,7 @@ class ClusterManager(object):
             if configuration is None:
                 configuration = configurations['default']
 
-            cluster = self.__clusters[key] = rb.Cluster(
-                pool_cls=_shared_pool,
-                **configuration
-            )
+            cluster = self.__clusters[key] = _make_rb_cluster(**configuration)
 
         return cluster
 
