@@ -7,10 +7,10 @@ sentry.options.defaults
 """
 from __future__ import absolute_import, print_function
 
-
-from sentry.options import register, FLAG_NOSTORE, FLAG_REQUIRED, FLAG_PRIORITIZE_DISK
+from sentry.options import (
+    FLAG_IMMUTABLE, FLAG_NOSTORE, FLAG_PRIORITIZE_DISK, FLAG_REQUIRED, register
+)
 from sentry.utils.types import Dict
-
 
 register('cache.backend', flags=FLAG_NOSTORE)
 register('cache.options', type=Dict, flags=FLAG_NOSTORE)
@@ -32,7 +32,7 @@ register(
             },
         },
     },
-    flags=FLAG_NOSTORE
+    flags=FLAG_NOSTORE | FLAG_IMMUTABLE
 )
 
 # Absolute URL to the sentry root directory. Should not include a trailing slash.
