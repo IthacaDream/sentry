@@ -6,7 +6,6 @@ import random
 import time
 from contextlib import contextmanager
 
-from django.conf import settings
 from redis.exceptions import (
     ResponseError,
     WatchError,
@@ -23,8 +22,8 @@ from sentry.digests.backends.base import (
 from sentry.utils.cache import Lock
 from sentry.utils.redis import (
     check_cluster_versions,
+    get_cluster_from_options,
     load_script,
-    make_rb_cluster,
 )
 from sentry.utils.versioning import Version
 
@@ -122,16 +121,7 @@ class RedisBackend(Backend):
 
     """
     def __init__(self, **options):
-        super(RedisBackend, self).__init__(**options)
-
-        # XXX: If **any** options are set, the Redis options must explicitly
-        # provided. Options also need to be declared carefully, since any keys
-        # that collide with the Redis cluster options will be used in both
-        # contexts!
-        if not options:
-            options = dict(settings.SENTRY_REDIS_OPTIONS)
-
-        self.cluster = make_rb_cluster(options=options)
+        self.cluster, options = get_cluster_from_options(self, options)
 
         self.namespace = options.pop('namespace', 'd')
 
@@ -143,6 +133,8 @@ class RedisBackend(Backend):
         # larger than the maximum scheduling delay to ensure data is not evicted
         # too early.
         self.ttl = options.pop('ttl', 60 * 60)
+
+        super(RedisBackend, self).__init__(**options)
 
     def validate(self):
         logger.debug('Validating Redis version...')
