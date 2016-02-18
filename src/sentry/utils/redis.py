@@ -11,6 +11,7 @@ from redis.connection import ConnectionPool
 from redis.client import Script
 
 from sentry.exceptions import InvalidConfiguration
+from sentry import options
 from sentry.utils.versioning import (
     Version,
     check_versions,
@@ -61,8 +62,6 @@ class ClusterManager(object):
         self.__clusters = {}
 
     def get(self, key):
-        # XXX: Circular import, fix me.
-        from sentry import options
 
         cluster = self.__clusters.get(key)
 
