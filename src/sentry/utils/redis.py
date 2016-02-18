@@ -3,20 +3,16 @@ from __future__ import absolute_import
 import functools
 import posixpath
 import warnings
-from pkg_resources import resource_string
 from threading import Lock
 
 import rb
-from redis.connection import ConnectionPool
+from pkg_resources import resource_string
 from redis.client import Script
+from redis.connection import ConnectionPool
 
-from sentry.exceptions import InvalidConfiguration
 from sentry import options
-from sentry.utils.versioning import (
-    Version,
-    check_versions,
-)
-
+from sentry.exceptions import InvalidConfiguration
+from sentry.utils.versioning import Version, check_versions
 
 _pool_cache = {}
 _pool_lock = Lock()

@@ -6,27 +6,15 @@ import random
 import time
 from contextlib import contextmanager
 
-from redis.exceptions import (
-    ResponseError,
-    WatchError,
-)
+from redis.exceptions import ResponseError, WatchError
 
-from sentry.digests import (
-    Record,
-    ScheduleEntry,
-)
-from sentry.digests.backends.base import (
-    Backend,
-    InvalidState,
-)
+from sentry.digests import Record, ScheduleEntry
+from sentry.digests.backends.base import Backend, InvalidState
 from sentry.utils.cache import Lock
 from sentry.utils.redis import (
-    check_cluster_versions,
-    get_cluster_from_options,
-    load_script,
+    check_cluster_versions, get_cluster_from_options, load_script
 )
 from sentry.utils.versioning import Version
-
 
 logger = logging.getLogger('sentry.digests')
 

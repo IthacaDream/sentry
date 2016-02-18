@@ -7,9 +7,10 @@ sentry.buffer.redis
 """
 from __future__ import absolute_import
 
+from time import time
+
 from django.db import models
 from django.utils.encoding import force_bytes
-from time import time
 
 from sentry.buffer import Buffer
 from sentry.exceptions import InvalidConfiguration
